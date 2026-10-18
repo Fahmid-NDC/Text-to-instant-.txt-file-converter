@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text to TXT Converter (Offline)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-active: #1d4ed8;
+      --success: #10b981;
+      --success-hover: #059669;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --input-bg: #0b1120;
+      --input-border: #475569;
+      --focus-ring: rgba(59, 130, 246, 0.4);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1e38 0%, var(--bg-color) 70%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .badge-offline {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    .filename-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .input-group {
+      display: flex;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .input-group input {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-right: none;
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .input-addon {
+      background: #1e293b;
+      border: 1px solid var(--input-border);
+      color: #94a3b8;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+
+    .textarea-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 14px;
+      color: var(--text-main);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-number {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.15s, transform 0.05s, opacity 0.15s;
+      outline: none;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+      transform: translateY(10px);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    @media (max-width: 600px) {
+      .actions-bar {
+        flex-direction: column;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-offline">Offline HTML File</div>
+      <h1>Text to TXT Converter</h1>
+      <p class="subtitle">Type or paste your text and save it as a TXT file instantly.</p>
+    </header>
+
+    <main class="card">
+      <div class="filename-row">
+        <label for="filenameInput">Desired File Name</label>
+        <div class="input-group">
+          <input type="text" id="filenameInput" placeholder="document" value="document" spellcheck="false" autocomplete="off" />
+          <span class="input-addon">.txt</span>
+        </div>
+      </div>
+
+      <div class="textarea-wrapper">
+        <textarea id="textInput" placeholder="Type or paste your text here..." spellcheck="false" autofocus></textarea>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-badge">Characters: <span class="stat-number" id="charCount">0</span></div>
+        <div class="stat-badge">Words: <span class="stat-number" id="wordCount">0</span></div>
+        <div class="stat-badge">Lines: <span class="stat-number" id="lineCount">0</span></div>
+        <div class="stat-badge">Size: <span class="stat-number" id="sizeCount">0 B</span></div>
+      </div>
+
+      <div class="actions-bar">
+        <button type="button" class="btn-danger" id="clearBtn">Clear</button>
+        <button type="button" class="btn-secondary" id="copyBtn">Copy Text</button>
+        <button type="button" class="btn-primary" id="downloadBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download TXT
+        </button>
+      </div>
+    </main>
+
+    <footer>
+      Works 100% locally in your browser. No internet connection required.
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">File downloaded!</div>
+
+  <script>
+    (function () {
+      const textInput = document.getElementById('textInput');
+      const filenameInput = document.getElementById('filenameInput');
+      const charCount = document.getElementById('charCount');
+      const wordCount = document.getElementById('wordCount');
+      const lineCount = document.getElementById('lineCount');
+      const sizeCount = document.getElementById('sizeCount');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const toast = document.getElementById('toast');
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      }
+
+      function updateStats() {
+        const text = textInput.value || '';
+        charCount.textContent = text.length.toLocaleString();
+
+        const trimmed = text.trim();
+        const words = trimmed ? trimmed.split(/\s+/).length : 0;
+        wordCount.textContent = words.toLocaleString();
+
+        const lines = text ? text.split(/\r?\n/).length : 0;
+        lineCount.textContent = lines.toLocaleString();
+
+        const bytes = new TextEncoder().encode(text).length;
+        if (bytes < 1024) {
+          sizeCount.textContent = bytes + ' B';
+        } else if (bytes < 1024 * 1024) {
+          sizeCount.textContent = (bytes / 1024).toFixed(1) + ' KB';
+        } else {
+          sizeCount.textContent = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+      }
+
+      function getCleanFilename() {
+        let name = (filenameInput.value || '').trim();
+        if (!name) name = 'document';
+        name = name.replace(/[\\/:*?"<>|\x00-\x1F]/g, '-').trim();
+        if (!name || name === '-') name = 'document';
+        if (/\.txt$/i.test(name)) {
+          return name.replace(/\.txt$/i, '.txt');
+        }
+        return name + '.txt';
+      }
+
+      function downloadTxt() {
+        const text = textInput.value;
+        const filename = getCleanFilename();
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast('Downloaded: ' + filename);
+      }
+
+      textInput.addEventListener('input', updateStats);
+
+      downloadBtn.addEventListener('click', downloadTxt);
+
+      copyBtn.addEventListener('click', () => {
+        if (!textInput.value) {
+          showToast('Text is empty');
+          return;
+        }
+        navigator.clipboard.writeText(textInput.value).then(
+          () => showToast('Copied to clipboard!'),
+          () => showToast('Failed to copy')
+        );
+      });
+
+      clearBtn.addEventListener('click', () => {
+        if (!textInput.value) return;
+        textInput.value = '';
+        updateStats();
+        textInput.focus();
+        showToast('Cleared text');
+      });
+
+      // Keyboard shortcut Ctrl+Enter or Cmd+Enter to download
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          downloadTxt();
+        }
+      });
+
+      updateStats();
+    })();
+  </script>
+</body>
+</html>
